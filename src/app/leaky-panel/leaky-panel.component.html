@@ -1,0 +1,39 @@
+<section class="panel">
+  <h2>Leaky Panel</h2>
+
+  <p>
+    This widget simulates a runaway feature. Every second it keeps a timer running,
+    allocates a fresh 1&nbsp;MB buffer, and never removes any global listeners.
+    Closing the panel does not help because nothing is cleaned up.
+  </p>
+
+  <div class="metrics">
+    <div>
+      <span class="label">Allocated buffers:</span>
+      <span class="value">{{ allocatedBuffers }}</span>
+    </div>
+
+    <div>
+      <span class="label">Global listeners:</span>
+      <span class="value">{{ leakedListeners }}</span>
+    </div>
+
+    <div>
+      <span class="label">Retained components:</span>
+      <span class="value">{{ retainedComponents }}</span>
+    </div>
+
+    <div>
+      <span class="label">Mouse events captured:</span>
+      <span class="value">{{ trackedMouseEvents }}</span>
+    </div>
+  </div>
+
+  <button type="button" (click)="triggerBurst()">
+    Trigger 20MB burst allocation
+  </button>
+
+  <p class="hint">
+    Move the pointer around to accelerate the leak—each mouse move grabs extra memory.
+  </p>
+</section>

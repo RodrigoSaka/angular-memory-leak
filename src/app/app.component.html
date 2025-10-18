@@ -1,0 +1,48 @@
+<main>
+  <header class="hero">
+    <h1>Angular Memory Leak Playground</h1>
+    <p>
+      Mount and destroy the leaking panel below, then use your browser DevTools to watch the heap grow.
+    </p>
+  </header>
+
+  <section class="instructions">
+    <h2>How to spot the leak</h2>
+    <ol>
+      <li>Open DevTools → Memory (Chrome) or Performance → Memory (Edge).</li>
+      <li>
+        Click <em>Add Leaky Panel</em> a few times, destroy it, and take a heap snapshot.
+        Repeat the cycle and compare snapshots—the number of <strong>app-leaky-panel</strong>
+        instances, listeners, and ArrayBuffers will keep increasing.
+      </li>
+      <li>Start the auto cycle or move the mouse around to accelerate the leak.</li>
+    </ol>
+  </section>
+
+  <section class="controls">
+    <button type="button" (click)="addPanel()">Add Leaky Panel</button>
+    <button type="button" (click)="destroyAllPanels()" [disabled]="panelKeys.length === 0">
+      Destroy All Panels
+    </button>
+    <button type="button" (click)="toggleAutoCycle()">
+      {{ autoCycling ? 'Stop Auto Cycle' : 'Start Auto Cycle' }}
+    </button>
+
+    <div class="status">
+      <div><span class="label">Panels mounted now:</span> {{ panelKeys.length }}</div>
+      <div><span class="label">Total mounts performed:</span> {{ totalMounts }}</div>
+      <div><span class="label">Auto cycle:</span> {{ autoCycling ? 'running' : 'idle' }}</div>
+    </div>
+  </section>
+
+  <section class="playground">
+    <p *ngIf="panelKeys.length === 0" class="empty-state">
+      No leaky panels active. Add one to start leaking memory on purpose.
+    </p>
+
+    <app-leaky-panel
+      *ngFor="let panelId of panelKeys; trackBy: trackById"
+      class="panel-instance"
+    ></app-leaky-panel>
+  </section>
+</main>
