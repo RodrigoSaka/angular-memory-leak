@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { LeakyPanelComponent } from './leaky-panel/leaky-panel.component';
+import { DevtoolsChecklistComponent } from './components/devtools-checklist/devtools-checklist.component';
+import { RetentionDemoComponent } from './components/retention-demo/retention-demo.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, LeakyPanelComponent],
+  imports: [CommonModule, RouterOutlet, DevtoolsChecklistComponent, RetentionDemoComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

@@ -1,15 +1,14 @@
 <section class="panel">
-  <h2>Leaky Panel</h2>
+  <h2>Painel de Retencao</h2>
 
   <p>
-    This widget simulates a runaway feature. Every second it keeps a timer running,
-    allocates a fresh 1&nbsp;MB buffer, and never removes any global listeners.
-    Closing the panel does not help because nothing is cleaned up.
+    Este painel simula uma funcionalidade descuidada: a cada segundo mantem um timer ativo, guarda um novo buffer de
+    1&nbsp;MB e deixa listeners globais registrados mesmo apos ser desmontado.
   </p>
 
   <div class="metrics">
     <div>
-      <span class="label">Allocated buffers:</span>
+      <span class="label">Buffers kept alive:</span>
       <span class="value">{{ allocatedBuffers }}</span>
     </div>
 
@@ -29,11 +28,9 @@
     </div>
   </div>
 
-  <button type="button" (click)="triggerBurst()">
-    Trigger 20MB burst allocation
-  </button>
+  <button type="button" (click)="triggerBurst()">Acionar rajada de 20&nbsp;MB</button>
 
   <p class="hint">
-    Move the pointer around to accelerate the leak—each mouse move grabs extra memory.
+    Mova o ponteiro sobre a pagina para acelerar o problema—cada movimento registra mais um listener preso.
   </p>
 </section>

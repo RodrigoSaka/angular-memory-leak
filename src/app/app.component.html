@@ -1,48 +1,53 @@
 <main>
   <header class="hero">
-    <h1>Angular Memory Leak Playground</h1>
+    <h1>Laboratorio de Retencao Angular</h1>
     <p>
-      Mount and destroy the leaking panel below, then use your browser DevTools to watch the heap grow.
+      Monte o painel de exemplo, acompanhe os contadores ao vivo e use o card de DevTools para entender onde a memoria
+      permanece presa.
     </p>
   </header>
 
-  <section class="instructions">
-    <h2>How to spot the leak</h2>
-    <ol>
-      <li>Open DevTools → Memory (Chrome) or Performance → Memory (Edge).</li>
-      <li>
-        Click <em>Add Leaky Panel</em> a few times, destroy it, and take a heap snapshot.
-        Repeat the cycle and compare snapshots—the number of <strong>app-leaky-panel</strong>
-        instances, listeners, and ArrayBuffers will keep increasing.
-      </li>
-      <li>Start the auto cycle or move the mouse around to accelerate the leak.</li>
-    </ol>
-  </section>
-
   <section class="controls">
-    <button type="button" (click)="addPanel()">Add Leaky Panel</button>
+    <button type="button" (click)="addPanel()">Add Demo Panel</button>
     <button type="button" (click)="destroyAllPanels()" [disabled]="panelKeys.length === 0">
-      Destroy All Panels
+      Destroy Panels
     </button>
     <button type="button" (click)="toggleAutoCycle()">
       {{ autoCycling ? 'Stop Auto Cycle' : 'Start Auto Cycle' }}
     </button>
 
     <div class="status">
-      <div><span class="label">Panels mounted now:</span> {{ panelKeys.length }}</div>
-      <div><span class="label">Total mounts performed:</span> {{ totalMounts }}</div>
-      <div><span class="label">Auto cycle:</span> {{ autoCycling ? 'running' : 'idle' }}</div>
+      <div><span class="label">Paineis ativos agora:</span> {{ panelKeys.length }}</div>
+      <div><span class="label">Montagens acumuladas:</span> {{ totalMounts }}</div>
+      <div><span class="label">Auto cycle:</span> {{ autoCycling ? 'rodando' : 'parado' }}</div>
     </div>
   </section>
 
   <section class="playground">
     <p *ngIf="panelKeys.length === 0" class="empty-state">
-      No leaky panels active. Add one to start leaking memory on purpose.
+      Nenhum painel ativo. Clique em Add Demo Panel para iniciar o experimento de retencao.
     </p>
 
-    <app-leaky-panel
+    <app-retention-demo
       *ngFor="let panelId of panelKeys; trackBy: trackById"
       class="panel-instance"
-    ></app-leaky-panel>
+    ></app-retention-demo>
+  </section>
+
+  <app-devtools-checklist></app-devtools-checklist>
+
+  <section class="instructions">
+    <h2>Como usar o playground</h2>
+    <p class="intro">Siga este roteiro lado a lado com o DevTools para observar um caso real de retencao.</p>
+    <ol>
+      <li>Abra o DevTools, selecione a aba Memory e tire um snapshot de linha de base com a pagina parada.</li>
+      <li>Clique em <em>Add Demo Panel</em> para montar o painel. Observe como os contadores de buffers e listeners sobem.</li>
+      <li>Use <em>Acionar rajada de 20 MB</em> e mova o ponteiro pela pagina. Isso força novas alocacoes e listeners presos.</li>
+      <li>
+        Termine com <em>Destroy Panels</em>, tire outro snapshot e compare: o seletor <strong>app-retention-demo</strong> segue
+        retido e o tamanho total nao volta ao ponto inicial.
+      </li>
+      <li>Repita o ciclo rapidamente com <em>Start Auto Cycle</em> para produzir evidencias em poucos segundos.</li>
+    </ol>
   </section>
 </main>

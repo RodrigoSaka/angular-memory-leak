@@ -1,75 +1,61 @@
-# Angular Memory Leak Playground
+# Laboratorio Angular de Retencao
 
-A deliberately leaky Angular application that you can use to learn, demo, and benchmark memory leak diagnostics in modern browsers. It spins up quickly, leaks aggressively, and provides predictable signals in DevTools so you can practice finding and fixing the root cause.
+Aplicacao Angular pensada para demonstrar na pratica como diagnosticar objetos presos na memoria usando o Chrome DevTools. O projeto foi construído para ser ruidoso de proposito: basta montar o painel de exemplo para ver buffers, listeners e instancias se acumulando.
 
-## Key Capabilities
+## Visao geral
 
-- **Repeatable leak scenario** – mount and destroy leaking components with a single click.
-- **High-signal telemetry** – generates growing heaps, retained DOM nodes, and active timers to inspect in Chrome or Edge DevTools.
-- **Hands-on learning** – showcases common Angular anti-patterns that lead to leaks and demonstrates how to mitigate them.
+- **Painel de demonstracao** (`app-retention-demo`): simula um recurso descuidado que registra timers, listeners globais e buffers de 1 MB sem limpar nada em `ngOnDestroy`.
+- **Card Procedimento no DevTools** (`app-devtools-checklist`): oferece um roteiro estatico em portugues para tirar snapshots, comparar resultados e validar a correção.
+- **Playground guiado**: a pagina inicial explica o que observar, mostra contadores em tempo real e disponibiliza botoes para montar, destruir e automatizar o ciclo.
 
-## Getting Started
-
-### Prerequisites
+## Requisitos
 
 - Node.js 18+
 - npm 9+
 
-### Installation
+## Instalacao e execucao
 
 ```bash
-npm install
+npm install     # instala dependencias
+npm start       # sobe o servidor local em http://localhost:4200
 ```
 
-### Run Locally
+Abra o endereço no Chrome ou em outro navegador Chromium para aproveitar todos os recursos do DevTools.
 
-```bash
-npm start
-```
+## Roteiro sugerido
 
-The development server runs at `http://localhost:4200`. Open the URL in Chrome or another Chromium-based browser for the best tooling support.
+1. Abra o DevTools e va ate a aba **Memory**. Com a pagina parada, capture um snapshot de linha de base.
+2. Clique em **Add Demo Panel** algumas vezes. Observe o painel de contadores incrementar buffers, listeners e componentes retidos.
+3. No painel, acione **Acionar rajada de 20 MB** e mova o ponteiro pela tela para acelerar o problema.
+4. Pressione **Destroy Panels** e tire um novo snapshot. Compare com a linha de base em **Comparison** → `Objects allocated between snapshots`. Os grupos `app-retention-demo` e `ArrayBuffer` devem continuar crescendo.
+5. Repita o ciclo com **Start Auto Cycle** (botao principal) para gerar evidencias rapidamente.
+6. Grave uma curta timeline em **Allocation instrumentation on timeline** e clique em **Collect garbage**. A linha nao deve voltar ao nivel inicial, provando que ha objetos retidos.
 
-## Reproducing the Leak
+O card **Procedimento no DevTools** presente na pagina repete esses passos com mais detalhes e dicas sobre filtros (`Retained size`, `Retainers`, `Detached DOM tree`, etc.).
 
-1. Open Chrome DevTools and navigate to the **Memory** tab (or **Performance → Memory** on Edge/Chromium).
-2. Click **Add Leaky Panel** a few times, then click **Destroy All Panels**.
-3. Take a **Heap Snapshot**, repeat the add/destroy cycle, and compare snapshots. The counts for `app-leaky-panel`, `ArrayBuffer`, and event listeners continue to grow.
-4. Enable **Start Auto Cycle** to mount/dismount items automatically. Move the pointer across the screen to accelerate buffer allocation.
-5. Record a short profile in the **Performance** tab and inspect **Event Listeners** to confirm that timers and handlers stay registered after components unmount.
+## O que esta retendo memoria?
 
-## What Is Leaking?
+- `src/app/components/retention-demo/retention-demo.component.ts`: componente que registra `setInterval`, listeners globais (`mousemove`) e aloca buffers de 1 MB a cada segundo. O metodos `ngOnDestroy` propositalmente nao limpa os recursos.
+- `src/app/services/retention-harness/retention-harness.service.ts`: service singleton que guarda referencias fortes para buffers, listeners e instancias de componentes, impossibilitando que o garbage collector recupere memoria.
 
-- `LeakyPanelComponent` registers `setInterval` timers and global event listeners without cleaning them up in `ngOnDestroy`.
-- `LeakyMemoryService` holds strong references to component instances and listener functions, preventing garbage collection.
-- Each interval adds a 1 MB `ArrayBuffer`, and the corresponding button triggers bursts of 20 MB allocations.
+Cada intervalo adiciona um novo `ArrayBuffer`. O botao de rajada executa 20 alocacoes de 1 MB em sequencia, expondo rapidamente os efeitos no DevTools.
 
-## Fixing the Leak
+## Exercicios propostos
 
-- Release external resources during teardown:
+- Ajuste o `RetentionDemoComponent` para remover listeners e timers no `ngOnDestroy` e repita os snapshots.
+- Troque os arrays do `RetentionHarnessService` por estruturas fracas (`WeakRef`, `WeakSet` ou `WeakMap`) e observe o impacto.
+- Adicione uma rotina de limpeza para buffers antigos e valide, via DevTools, que o heap volta ao patamar inicial apos destruir os paineis.
 
-  ```ts
-  ngOnDestroy(): void {
-    window.removeEventListener('mousemove', this.leakingListener);
-    if (this.allocationTimerId) {
-      window.clearInterval(this.allocationTimerId);
-    }
-  }
-  ```
+## Scripts
 
-- Drop strong references in services once components unmount (clear arrays or leverage `WeakRef` / `WeakSet` where possible).
-- Avoid large buffers unless necessary, and release references immediately after use.
-- Validate the fix by repeating heap snapshots: instance counts and `ArrayBuffer` allocations should stabilize after destroying all panels.
+- `npm start` – servidor de desenvolvimento com recarregamento.
+- `npm run build` – build de producao otimizado.
+- `npm test` – executa testes unitarios com Karma.
 
-## Available Scripts
+## Contribuicao
 
-- `npm start` – run the development server with hot reload.
-- `npm run build` – produce an optimized production build.
-- `npm test` – execute unit tests with Karma.
+Sugestoes e pull requests sao bem-vindos. Para mudancas maiores, abra uma issue para discutirmos a abordagem. Siga as convencoes do Angular e inclua testes quando fizer sentido.
 
-## Contributing
+## Licenca
 
-Issues, discussions, and pull requests are welcome. If you plan to make significant changes, open an issue first so we can align on the approach. Please follow conventional Angular coding guidelines and include relevant tests when possible.
-
-## License
-
-This project is licensed under the MIT License. See `LICENSE` for details.
+Licenciado sob MIT. Veja `LICENSE` para mais detalhes.

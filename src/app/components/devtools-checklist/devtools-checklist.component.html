@@ -1,0 +1,87 @@
+<section class="devtools-guide">
+  <h2>Procedimento no DevTools</h2>
+  <p>Use este roteiro para localizar objetos que continuam retendo memoria apos repetir o fluxo suspeito.</p>
+
+  <div class="heap-readout" *ngIf="canProbeHeap">
+    <span class="label">Live heap usage:</span>
+    <span class="value">{{ heapUsageMb }}&nbsp;MB</span>
+    <span class="limit" *ngIf="heapLimitMb !== null">(cap ≈ {{ heapLimitMb }}&nbsp;MB)</span>
+  </div>
+  <p class="heap-hint" *ngIf="!canProbeHeap">
+    Tip: alguns navegadores ocultam a leitura em tempo real. Se esta area ficar vazia, confie em snapshots e na timeline
+    de alocacao.
+  </p>
+
+  <article class="guide-section">
+    <h3>1. Organize o cenario</h3>
+    <p>Feche abas desnecessarias, carregue apenas esta pagina e prepare o fluxo que deve ser analisado.</p>
+    <ul>
+      <li>Abra o DevTools com F12 ou Ctrl+Shift+I (Cmd+Opt+I no macOS).</li>
+      <li>Garanta que a guia Memory esta visivel. Se nao estiver, use o menu interno (tres pontos) &rarr; More tools &rarr; Memory.</li>
+      <li>Deixe a pagina parada, sem interacao, para capturar a linha de base limpa.</li>
+    </ul>
+  </article>
+
+  <article class="guide-section">
+    <h3>2. Capture a linha de base</h3>
+    <p>Registre o estado do heap antes de montar componentes ou acionar eventos.</p>
+    <ul>
+      <li>Selecione o modo Heap snapshot.</li>
+      <li>Clique em Take snapshot e aguarde a conclusao.</li>
+      <li>Renomeie a captura se quiser comparar mais facilmente depois.</li>
+    </ul>
+  </article>
+
+  <article class="guide-section">
+    <h3>3. Reproduza o comportamento</h3>
+    <p>Execute o fluxo suspeito de reter memoria para gerar alocacoes comparaveis.</p>
+    <ul>
+      <li>Clique em Add Demo Panel algumas vezes e use Trigger 20MB burst enquanto os cards estao montados.</li>
+      <li>Finalize com Destroy Panels para remover tudo do DOM.</li>
+      <li>Repita o ciclo montar &rarr; consumir &rarr; destruir duas ou tres vezes para acumular residuos.</li>
+    </ul>
+  </article>
+
+  <article class="guide-section">
+    <h3>4. Compare snapshots</h3>
+    <p>Verifique quais objetos aparecem apenas apos o fluxo.</p>
+    <ul>
+      <li>Tire um novo snapshot e habilite Comparison com o primeiro como referencia.</li>
+      <li>Use o filtro Objects allocated between snapshots e ordene por Retained size.</li>
+      <li>Procure pelos elementos do componente de demonstracao e por estruturas como ArrayBuffer que representam buffers
+        retidos.</li>
+    </ul>
+  </article>
+
+  <article class="guide-section">
+    <h3>5. Leia os retentores</h3>
+    <p>Identifique a cadeia que segura os objetos apos o termino do fluxo.</p>
+    <ul>
+      <li>Ao selecionar um item na lista, abra a aba Retainers para ver quem mantem a referencia.</li>
+      <li>Investigue listeners, services singleton e closures; sao candidatos comuns a manter estado antigo.</li>
+      <li>Fique atento a grupos especiais como Detached DOM tree e EventListener, que indicam elementos ou handlers
+        esquecidos.</li>
+    </ul>
+  </article>
+
+  <article class="guide-section">
+    <h3>6. Grave a timeline de alocacao</h3>
+    <p>Confirme se o heap volta ao nivel inicial apos coleta de lixo.</p>
+    <ul>
+      <li>Troque o modo para Allocation instrumentation on timeline.</li>
+      <li>Pressione Start, repita o fluxo e encerre com Stop.</li>
+      <li>Clique em Collect garbage; se a linha nao retornar ao patamar inicial, ha objetos retidos.</li>
+      <li>Abra os grupos gerados para descobrir os construtores que mais alocaram durante o intervalo.</li>
+    </ul>
+  </article>
+
+  <article class="guide-section">
+    <h3>7. Valide sua correcao</h3>
+    <p>Depois de ajustar o codigo, repita os mesmos testes para confirmar que o heap estabiliza.</p>
+    <ul>
+      <li>Execute exatamente o mesmo roteiro de interacao utilizado para capturar o problema.</li>
+      <li>Confira se Retained size cai para zero ou permanece constante entre novos snapshots.</li>
+      <li>Guarde capturas antes e depois da correcao para documentar o resultado.</li>
+    </ul>
+  </article>
+</section>

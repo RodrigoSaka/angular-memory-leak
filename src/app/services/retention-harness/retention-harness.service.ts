@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class LeakyMemoryService {
+export class RetentionHarnessService {
   private readonly retainedBuffers: ArrayBuffer[] = [];
   private readonly leakedListeners: Array<(event: MouseEvent) => void> = [];
   private readonly retainedComponentRefs: unknown[] = [];
